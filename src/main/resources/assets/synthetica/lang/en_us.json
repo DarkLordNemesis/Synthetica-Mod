@@ -1,0 +1,19 @@
+{
+  "itemGroup.synthetica": "Example Mod Tab",
+  "block.synthetica.example_block": "Example Block",
+
+  "synthetica.configuration.title": "Example Mod Configs",
+  "synthetica.configuration.section.synthetica.common.toml": "Example Mod Configs",
+  "synthetica.configuration.section.synthetica.common.toml.title": "Example Mod Configs",
+  "synthetica.configuration.items": "Item List",
+  "synthetica.configuration.logDirtBlock": "Log Dirt Block",
+  "synthetica.configuration.magicNumberIntroduction": "Magic Number Text",
+  "synthetica.configuration.magicNumber": "Magic Number",
+
+  "item.synthetica.bismuth": "Bismuth",
+  "item.synthetica.raw_bismuth": "Raw Bismuth",
+  "block.synthetica.bismuth_block": "Bismuth Block",
+  "block.synthetica.bismuth_ore": "Bismuth Ore",
+
+  "creativetab.synthetica.synthetica_tab": "Synthetica"
+}
