@@ -24,6 +24,8 @@ public class ModCreativeModeTabs {
                 output.accept(ModBlocks.BISMUTH_BLOCK.get());
                 output.accept(ModBlocks.BISMUTH_ORE.get());
                 output.accept(ModItems.CHISEL.get());
+
+                output.accept(ModBlocks.PEDESTAL.get());
             }).build());
 
     public static void register(IEventBus modEventBus) {

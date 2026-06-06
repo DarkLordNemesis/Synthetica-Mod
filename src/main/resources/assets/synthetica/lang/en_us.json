@@ -12,9 +12,12 @@
 
   "item.synthetica.bismuth": "Bismuth",
   "item.synthetica.raw_bismuth": "Raw Bismuth",
+  "item.synthetica.chisel": "Chisel",
+
   "block.synthetica.bismuth_block": "Bismuth Block",
   "block.synthetica.bismuth_ore": "Bismuth Ore",
-  "item.synthetica.chisel": "Chisel",
+
+  "block.synthetica.pedestal": "Pedestal",
 
   "creativetab.synthetica.synthetica_tab": "Synthetica"
 }

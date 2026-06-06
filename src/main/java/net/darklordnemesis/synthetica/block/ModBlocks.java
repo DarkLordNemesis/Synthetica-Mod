@@ -1,6 +1,7 @@
 package net.darklordnemesis.synthetica.block;
 
 import net.darklordnemesis.synthetica.Synthetica;
+import net.darklordnemesis.synthetica.block.custom.PedestalBlock;
 import net.darklordnemesis.synthetica.item.ModItems;
 import net.minecraft.client.resources.model.Material;
 import net.minecraft.util.valueproviders.UniformInt;
@@ -25,6 +26,9 @@ public class ModBlocks {
 
     public static final DeferredBlock<Block> BISMUTH_ORE = registerBlock("bismuth_ore",
             () -> new DropExperienceBlock(UniformInt.of(1, 10), BlockBehaviour.Properties.of().strength(2f).requiresCorrectToolForDrops().sound(SoundType.STONE)));
+
+    public static final DeferredBlock<Block> PEDESTAL = registerBlock("pedestal",
+            () -> new PedestalBlock(BlockBehaviour.Properties.of().noOcclusion()));
     //#####
 
     private static <T extends Block> DeferredBlock<T> registerBlock(String name, Supplier<T> block) {

@@ -1,6 +1,7 @@
 package net.darklordnemesis.synthetica;
 
 import net.darklordnemesis.synthetica.block.ModBlocks;
+import net.darklordnemesis.synthetica.block.entity.ModBlockEntities;
 import net.darklordnemesis.synthetica.item.ModCreativeModeTabs;
 import net.darklordnemesis.synthetica.item.ModItems;
 import org.slf4j.Logger;
@@ -39,7 +40,10 @@ public class Synthetica {
         // Register custom items and blocks
         ModItems.register(modEventBus);
         ModBlocks.register(modEventBus);
+
         ModCreativeModeTabs.register(modEventBus);
+
+        ModBlockEntities.register(modEventBus);
 
         // add listener for creative tab so it gets added
         modEventBus.addListener(this::addCreative);
