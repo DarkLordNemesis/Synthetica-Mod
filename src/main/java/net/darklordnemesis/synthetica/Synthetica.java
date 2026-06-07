@@ -2,8 +2,13 @@ package net.darklordnemesis.synthetica;
 
 import net.darklordnemesis.synthetica.block.ModBlocks;
 import net.darklordnemesis.synthetica.block.entity.ModBlockEntities;
+import net.darklordnemesis.synthetica.block.entity.renderer.PedestalBlockEntityRenderer;
 import net.darklordnemesis.synthetica.item.ModCreativeModeTabs;
 import net.darklordnemesis.synthetica.item.ModItems;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
@@ -77,5 +82,19 @@ public class Synthetica {
     public void onServerStarting(ServerStartingEvent event) {
         // Do something when the server starts
         LOGGER.info("HELLO from server starting");
+    }
+
+    @EventBusSubscriber(modid = Synthetica.MOD_ID, value = Dist.CLIENT)
+    public static class ClientModEvents {
+
+        @SubscribeEvent
+        public static void onClientSetup(FMLClientSetupEvent event) {
+        }
+
+        @SubscribeEvent
+        public static void registerBER(EntityRenderersEvent.RegisterRenderers event) {
+            event.registerBlockEntityRenderer(ModBlockEntities.PEDESTAL_BE.get(), PedestalBlockEntityRenderer::new);
+        }
+
     }
 }
