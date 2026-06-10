@@ -3,10 +3,13 @@ package net.darklordnemesis.synthetica.block.custom;
 import com.mojang.serialization.MapCodec;
 import net.darklordnemesis.synthetica.block.entity.PedestalBlockEntity;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
@@ -65,21 +68,39 @@ public class PedestalBlock extends BaseEntityBlock {
     }
 
     @Override
-    protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
-        if (level.getBlockEntity(pos) instanceof PedestalBlockEntity pedestalBlockEntity) {
-            if (pedestalBlockEntity.inventory.getStackInSlot(0).isEmpty() && !stack.isEmpty()) {
-                pedestalBlockEntity.inventory.insertItem(0, stack.copy(), false);
-                stack.shrink(1);
-                level.playSound(player, pos, SoundEvents.ITEM_PICKUP, SoundSource.BLOCKS, 1.0f, 2.0f);
+    protected ItemInteractionResult useItemOn(ItemStack heldItemStack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
+        if (!(level.getBlockEntity(pos) instanceof PedestalBlockEntity pedestalBlockEntity)) {
+            return super.useItemOn(heldItemStack, state, level, pos, player, hand, hitResult);
+        }
 
-            } else if (stack.isEmpty()) {
+        if (player.isCrouching()) {
+            if (player instanceof ServerPlayer) {
+                player.openMenu(new SimpleMenuProvider(pedestalBlockEntity, Component.literal("Pedestal")), pos);
+            }
+            return ItemInteractionResult.SUCCESS;
+        }
+
+        if (heldItemStack.isEmpty()) {
+            if (player instanceof ServerPlayer) {
                 ItemStack stackOnPedestal = pedestalBlockEntity.inventory.extractItem(0, 1, false);
-                player.setItemInHand(hand, stackOnPedestal);
+                player.setItemInHand(InteractionHand.MAIN_HAND, stackOnPedestal);
                 pedestalBlockEntity.clearContent();
-                level.playSound(player, pos, SoundEvents.ITEM_PICKUP, SoundSource.BLOCKS, 1.0f, 2.0f);
+            }
+            level.playSound(player, pos, SoundEvents.ITEM_PICKUP, SoundSource.BLOCKS, 1f, 1f);
+
+            return ItemInteractionResult.SUCCESS;
+        }
+
+        if (pedestalBlockEntity.inventory.getStackInSlot(0).isEmpty()) {
+            if (player instanceof ServerPlayer) {
+                pedestalBlockEntity.inventory.insertItem(0, heldItemStack.copy(), false);
+                heldItemStack.shrink(1);
             }
 
+            level.playSound(player, pos, SoundEvents.ITEM_PICKUP, SoundSource.BLOCKS, 1f, 2f);
         }
+
         return ItemInteractionResult.SUCCESS;
+
     }
 }

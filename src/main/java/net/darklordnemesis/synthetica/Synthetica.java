@@ -5,10 +5,13 @@ import net.darklordnemesis.synthetica.block.entity.ModBlockEntities;
 import net.darklordnemesis.synthetica.block.entity.renderer.PedestalBlockEntityRenderer;
 import net.darklordnemesis.synthetica.item.ModCreativeModeTabs;
 import net.darklordnemesis.synthetica.item.ModItems;
+import net.darklordnemesis.synthetica.screen.ModMenuTypes;
+import net.darklordnemesis.synthetica.screen.custom.PedestalScreen;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
+import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
@@ -55,6 +58,9 @@ public class Synthetica {
 
         // Register our mod's ModConfigSpec so that FML can create and load the config file for us
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
+
+        // Register custom menus
+        ModMenuTypes.register(modEventBus);
     }
 
 
@@ -94,6 +100,11 @@ public class Synthetica {
         @SubscribeEvent
         public static void registerBER(EntityRenderersEvent.RegisterRenderers event) {
             event.registerBlockEntityRenderer(ModBlockEntities.PEDESTAL_BE.get(), PedestalBlockEntityRenderer::new);
+        }
+
+        @SubscribeEvent
+        public static void registerScreens(RegisterMenuScreensEvent event) {
+            event.register(ModMenuTypes.PEDESTAL_MENU.get(), PedestalScreen::new);
         }
 
     }
