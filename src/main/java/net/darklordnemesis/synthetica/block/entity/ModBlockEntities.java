@@ -15,6 +15,9 @@ public class ModBlockEntities {
     public static final Supplier<BlockEntityType<PedestalBlockEntity>> PEDESTAL_BE = BLOCK_ENTITIES.register("pedestal_be", () -> BlockEntityType.Builder.of(
             PedestalBlockEntity::new, ModBlocks.PEDESTAL.get()).build(null));
 
+    public static final Supplier<BlockEntityType<PipeBlockEntity>> PIPE_BE = BLOCK_ENTITIES.register("pipe_be", () -> BlockEntityType.Builder.of(
+            PipeBlockEntity::new, ModBlocks.PIPE.get()).build(null));
+
     public static void register(IEventBus modEventBus) {
         BLOCK_ENTITIES.register(modEventBus);
     }

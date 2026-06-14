@@ -2,6 +2,7 @@ package net.darklordnemesis.synthetica.block;
 
 import net.darklordnemesis.synthetica.Synthetica;
 import net.darklordnemesis.synthetica.block.custom.PedestalBlock;
+import net.darklordnemesis.synthetica.block.custom.PipeBlock;
 import net.darklordnemesis.synthetica.item.ModItems;
 import net.minecraft.client.resources.model.Material;
 import net.minecraft.util.valueproviders.UniformInt;
@@ -29,6 +30,9 @@ public class ModBlocks {
 
     public static final DeferredBlock<Block> PEDESTAL = registerBlock("pedestal",
             () -> new PedestalBlock(BlockBehaviour.Properties.of().noOcclusion()));
+
+    public static final DeferredBlock<Block> PIPE = registerBlock("pipe",
+            () -> new PipeBlock(BlockBehaviour.Properties.of().noOcclusion()));
     //#####
 
     private static <T extends Block> DeferredBlock<T> registerBlock(String name, Supplier<T> block) {
