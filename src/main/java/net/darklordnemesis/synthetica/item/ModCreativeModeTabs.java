@@ -27,6 +27,7 @@ public class ModCreativeModeTabs {
 
                 output.accept(ModBlocks.PEDESTAL.get());
                 output.accept(ModBlocks.PIPE.get());
+                output.accept(ModBlocks.CABLE.get());
             }).build());
 
     public static void register(IEventBus modEventBus) {

@@ -1,6 +1,7 @@
 package net.darklordnemesis.synthetica.block;
 
 import net.darklordnemesis.synthetica.Synthetica;
+import net.darklordnemesis.synthetica.block.custom.CableBlock;
 import net.darklordnemesis.synthetica.block.custom.PedestalBlock;
 import net.darklordnemesis.synthetica.block.custom.PipeBlock;
 import net.darklordnemesis.synthetica.item.ModItems;
@@ -33,6 +34,9 @@ public class ModBlocks {
 
     public static final DeferredBlock<Block> PIPE = registerBlock("pipe",
             () -> new PipeBlock(BlockBehaviour.Properties.of().noOcclusion()));
+
+    public static final DeferredBlock<Block> CABLE = registerBlock("cable",
+            () -> new CableBlock(BlockBehaviour.Properties.of().noOcclusion()));
     //#####
 
     private static <T extends Block> DeferredBlock<T> registerBlock(String name, Supplier<T> block) {

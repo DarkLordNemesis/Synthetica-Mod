@@ -6,6 +6,7 @@ import net.darklordnemesis.synthetica.block.entity.PipeBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
@@ -38,5 +39,14 @@ public class PipeBlock extends BaseEntityBlock {
     @Override
     public @Nullable <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> blockEntityType) {
         return createTickerHelper(blockEntityType, ModBlockEntities.PIPE_BE.get(), PipeBlockEntity::tick);
+    }
+
+    @Override
+    protected void neighborChanged(BlockState state, Level level, BlockPos pos,
+                                   Block neighborBlock, BlockPos neighborPos, boolean movedByPiston) {
+        super.neighborChanged(state, level, pos, neighborBlock, neighborPos, movedByPiston);
+        if (!level.isClientSide && level.getBlockEntity(pos) instanceof PipeBlockEntity pipe) {
+            pipe.markNetworkDirty();
+        }
     }
 }
