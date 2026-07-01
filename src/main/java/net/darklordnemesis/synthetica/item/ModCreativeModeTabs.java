@@ -25,6 +25,8 @@ public class ModCreativeModeTabs {
                 output.accept(ModBlocks.BISMUTH_ORE.get());
                 output.accept(ModItems.CHISEL.get());
 
+                output.accept(ModItems.KATANA.get());
+
                 ModItems.FROZEN_BLAZE_ARMOR.forEach((type, item) -> output.accept(item.get()));
 
                 output.accept(ModBlocks.PEDESTAL.get());
