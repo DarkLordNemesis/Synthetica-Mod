@@ -3,6 +3,7 @@ package net.darklordnemesis.synthetica;
 import net.darklordnemesis.synthetica.block.ModBlocks;
 import net.darklordnemesis.synthetica.block.entity.ModBlockEntities;
 import net.darklordnemesis.synthetica.block.entity.renderer.PedestalBlockEntityRenderer;
+import net.darklordnemesis.synthetica.datacomponent.ModDataComponents;
 import net.darklordnemesis.synthetica.item.ModCreativeModeTabs;
 import net.darklordnemesis.synthetica.item.ModItems;
 import net.darklordnemesis.synthetica.screen.ModMenuTypes;
@@ -52,6 +53,8 @@ public class Synthetica {
         ModCreativeModeTabs.register(modEventBus);
 
         ModBlockEntities.register(modEventBus);
+
+        ModDataComponents.register(modEventBus);
 
         // add listener for creative tab so it gets added
         modEventBus.addListener(this::addCreative);

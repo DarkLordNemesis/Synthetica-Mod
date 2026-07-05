@@ -1,0 +1,8 @@
+{
+  "valid_items": [
+    { "tag": "synthetica:katanas" }
+  ],
+  "translation": [-0.272, 0.84, 0.15],
+  "rotation": [65.0, 0.0, 180.0],
+  "scale": [0.5, 0.5, 0.5]
+}

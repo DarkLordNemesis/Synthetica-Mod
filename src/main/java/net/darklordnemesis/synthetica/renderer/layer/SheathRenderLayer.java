@@ -1,13 +1,18 @@
 package net.darklordnemesis.synthetica.renderer.layer;
 
-
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import net.darklordnemesis.synthetica.Synthetica;
+import net.darklordnemesis.synthetica.client.SheathStateManager;
 import net.darklordnemesis.synthetica.item.ModItems;
+import net.darklordnemesis.synthetica.datacomponent.ModDataComponents;
+import net.darklordnemesis.synthetica.network.KatanaSyncInfo;
+import net.darklordnemesis.synthetica.server.ModDataRegistries;
 import net.darklordnemesis.synthetica.renderer.model.EmptySheathModel;
 import net.darklordnemesis.synthetica.renderer.model.SheathModel;
+import net.darklordnemesis.synthetica.sheath.SheathTransform;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.geom.EntityModelSet;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -15,19 +20,18 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class SheathRenderLayer<T extends LivingEntity, M extends EntityModel<T>> extends RenderLayer<T, M> {
 
     private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(Synthetica.MOD_ID, "textures/models/entity/sheath.png");
-
-    private final double[][] sheathPositions = new double[][] {
-            {0.272, 0.84, 0.15},
-            {-0.272, 0.84, 0.15}
-    };
 
     private final SheathModel<T> sheathModel;
     private final EmptySheathModel<T> emptySheathModel;
@@ -45,51 +49,83 @@ public class SheathRenderLayer<T extends LivingEntity, M extends EntityModel<T>>
             return;
         }
 
-        // Check if the katana is anywhere in the player's inventory
-        boolean hasKatanaInInventory = hasKatanaInInventory(player);
+        // 1. Get all katanas that need rendering
+        List<KatanaSyncInfo> katanasToRender = getKatanasToRender(player);
 
-        // If the player doesn't have the katana at all, render nothing
-        if (!hasKatanaInInventory) {
+        if (katanasToRender.isEmpty()) {
             return;
         }
 
-        // Check specifically if the katana is in the main hand right now
-        boolean isHoldingKatana = player.getMainHandItem().is(ModItems.KATANA.get()) || player.getOffhandItem().is(ModItems.KATANA.get());
+        // 2. Fetch the synchronized Datapack Registry from the client world
+        Registry<SheathTransform> registry = Minecraft.getInstance().level.registryAccess().registryOrThrow(ModDataRegistries.SHEATH_POSITIONS_KEY);
+        VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderType.entityCutoutNoCull(TEXTURE));
 
-        // Pick which model to render:
-        //   holding  → empty sheath (sword is drawn)
-        //   not held → full sheath  (sword is sheathed)
-        EntityModel<T> modelToRender = isHoldingKatana ? emptySheathModel : sheathModel;
+        // 3. Render every katana found in the inventory
+        for (KatanaSyncInfo info : katanasToRender) {
+            ResourceLocation positionId = info.positionId();
+            if (positionId == null) continue;
 
+            SheathTransform transform = registry.get(positionId);
+            if (transform == null) continue; // Safety check in case the JSON was deleted
 
-        for (double[] position : sheathPositions) {
+            // Pick which model to render:
+            //   holding  → empty sheath (sword is drawn)
+            //   not held → full sheath  (sword is sheathed)
+            EntityModel<T> modelToRender = info.isDrawn() ? emptySheathModel : sheathModel;
+
             poseStack.pushPose();
 
-            // x: -0.265 for right
-            poseStack.translate(position[0], position[1], position[2]);
-            poseStack.scale(0.5f, 0.5f, 0.5f);
-            poseStack.mulPose(Axis.XP.rotationDegrees(65));
+            // apply body rotation
+            if (this.getParentModel() instanceof net.minecraft.client.model.HumanoidModel<?> humanoidModel) {
+                // This inherits the exact translation and rotation of the body (sneaking, swimming, flying)
+                humanoidModel.body.translateAndRotate(poseStack);
+            }
 
-            poseStack.mulPose(Axis.ZP.rotationDegrees(180));
+            // Apply JSON transformations
+            poseStack.translate(transform.translation().x(), transform.translation().y(), transform.translation().z());
 
-            VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderType.entityCutoutNoCull(TEXTURE));
+            poseStack.mulPose(Axis.XP.rotationDegrees(transform.rotation().x()));
+            poseStack.mulPose(Axis.YP.rotationDegrees(transform.rotation().y()));
+            poseStack.mulPose(Axis.ZP.rotationDegrees(transform.rotation().z()));
+
+            poseStack.scale(transform.scale().x(), transform.scale().y(), transform.scale().z());
 
             modelToRender.renderToBuffer(poseStack, vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY);
 
             poseStack.popPose();
         }
-
     }
 
-    private boolean hasKatanaInInventory(Player player) {
-        if (player.getOffhandItem().is(ModItems.KATANA.get())) return true;
+    /**
+     * Gathers all katanas on the player and determines if they are drawn or sheathed.
+     */
+    private List<KatanaSyncInfo> getKatanasToRender(Player player) {
+        List<KatanaSyncInfo> renderInfos = new ArrayList<>();
+        ResourceLocation defaultPos = ResourceLocation.fromNamespaceAndPath(Synthetica.MOD_ID, "hip_left");
 
-        for (ItemStack stack : player.getInventory().items) {
-            if (stack.is(ModItems.KATANA.get())) {
-                return true;
+        if (player == Minecraft.getInstance().player) {
+
+            // Check main inventory
+            for (ItemStack stack : player.getInventory().items) {
+                if (stack.is(ModItems.KATANA.get())) {
+                    boolean isDrawn = stack == player.getMainHandItem();
+                    ResourceLocation pos = stack.getOrDefault(ModDataComponents.SHEATH_POSITION.get(), defaultPos);
+                    renderInfos.add(new KatanaSyncInfo(pos, isDrawn));
+                }
             }
-        }
-        return false;
-    }
 
+            // Check offhand specifically
+            for (ItemStack stack : player.getInventory().offhand) {
+                if (stack.is(ModItems.KATANA.get())) {
+                    boolean isDrawn = stack == player.getOffhandItem();
+                    ResourceLocation pos = stack.getOrDefault(ModDataComponents.SHEATH_POSITION.get(), defaultPos);
+                    renderInfos.add(new KatanaSyncInfo(pos, isDrawn));
+                }
+            }
+        } else {
+            renderInfos.addAll(SheathStateManager.getKatanas(player.getUUID()));
+        }
+
+        return renderInfos;
+    }
 }
