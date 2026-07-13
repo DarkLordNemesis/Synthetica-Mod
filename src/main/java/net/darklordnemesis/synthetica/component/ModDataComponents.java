@@ -1,4 +1,4 @@
-package net.darklordnemesis.synthetica.datacomponent;
+package net.darklordnemesis.synthetica.component;
 
 import net.darklordnemesis.synthetica.Synthetica;
 import net.minecraft.core.component.DataComponentType;
@@ -17,6 +17,13 @@ public class ModDataComponents {
     public static final Supplier<DataComponentType<ResourceLocation>> SHEATH_POSITION = DATA_COMPONENTS.registerComponentType("sheath_position",
             builder -> builder.persistent(ResourceLocation.CODEC).networkSynchronized(ResourceLocation.STREAM_CODEC)
     );
+
+    public static final Supplier<DataComponentType<EssentiaContents>> ESSENTIA_CONTENTS =
+            DATA_COMPONENTS.registerComponentType("essentia_contents", builder -> builder
+                    .persistent(EssentiaContents.CODEC)
+                    .networkSynchronized(EssentiaContents.STREAM_CODEC)
+            );
+
 
     public static void register(IEventBus modEventBus) {
         DATA_COMPONENTS.register(modEventBus);

@@ -32,6 +32,8 @@ public class ModCreativeModeTabs {
                 output.accept(ModBlocks.PEDESTAL.get());
                 output.accept(ModBlocks.PIPE.get());
                 output.accept(ModBlocks.CABLE.get());
+                output.accept(ModBlocks.GRAVITATIONAL_ANOMALY.get());
+                output.accept(ModBlocks.ESSENTIA_JAR.get());
             }).build());
 
     public static void register(IEventBus modEventBus) {

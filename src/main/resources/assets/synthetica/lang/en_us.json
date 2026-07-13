@@ -13,6 +13,7 @@
   "item.synthetica.bismuth": "Bismuth",
   "item.synthetica.raw_bismuth": "Raw Bismuth",
   "item.synthetica.chisel": "Chisel",
+  "item.synthetica.katana": "Katana",
 
   "item.synthetica.frozen_blaze_helmet": "Frozen Blaze Helmet",
   "item.synthetica.frozen_blaze_leggings": "Frozen Blaze Leggings",
@@ -23,6 +24,25 @@
   "block.synthetica.bismuth_ore": "Bismuth Ore",
 
   "block.synthetica.pedestal": "Pedestal",
+  "block.synthetica.essentia_jar": "Essentia Jar",
+
+  "aspect.synthetica.aer": "Aer",
+  "aspect.synthetica.terra": "Terra",
+  "aspect.synthetica.ignis": "Ignis",
+  "aspect.synthetica.aqua": "Aqua",
+  "aspect.synthetica.ordo": "Ordo",
+  "aspect.synthetica.perditio": "Perditio",
+
+  "aspect.synthetica.lux": "Lux",
+
+  "essentia.stack.full": "%1$s: %2$s",
+  "essentia.stack.empty": "Empty",
+  "essentia.jar.full": "%1$s",
+  "essentia.jar.empty": "Empty",
+
+  "tooltip.synthetica.essentia_value": "Aspects:",
+
+
 
   "creativetab.synthetica.synthetica_tab": "Synthetica"
 }

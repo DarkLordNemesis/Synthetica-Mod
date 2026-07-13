@@ -2,8 +2,11 @@ package net.darklordnemesis.synthetica;
 
 import net.darklordnemesis.synthetica.block.ModBlocks;
 import net.darklordnemesis.synthetica.block.entity.ModBlockEntities;
+import net.darklordnemesis.synthetica.block.entity.renderer.EssentiaJarBlockEntityRenderer;
+import net.darklordnemesis.synthetica.block.entity.renderer.GravitationalAnomalyRenderer;
 import net.darklordnemesis.synthetica.block.entity.renderer.PedestalBlockEntityRenderer;
-import net.darklordnemesis.synthetica.datacomponent.ModDataComponents;
+import net.darklordnemesis.synthetica.component.ModDataComponents;
+import net.darklordnemesis.synthetica.essentia.ModAspects;
 import net.darklordnemesis.synthetica.item.ModCreativeModeTabs;
 import net.darklordnemesis.synthetica.item.ModItems;
 import net.darklordnemesis.synthetica.screen.ModMenuTypes;
@@ -56,6 +59,8 @@ public class Synthetica {
 
         ModDataComponents.register(modEventBus);
 
+        ModAspects.registerPrimal(modEventBus);
+
         // add listener for creative tab so it gets added
         modEventBus.addListener(this::addCreative);
 
@@ -103,6 +108,8 @@ public class Synthetica {
         @SubscribeEvent
         public static void registerBER(EntityRenderersEvent.RegisterRenderers event) {
             event.registerBlockEntityRenderer(ModBlockEntities.PEDESTAL_BE.get(), PedestalBlockEntityRenderer::new);
+            event.registerBlockEntityRenderer(ModBlockEntities.GRAVITATIONAL_ANOMALY_BE.get(), GravitationalAnomalyRenderer::new);
+            event.registerBlockEntityRenderer(ModBlockEntities.ESSENTIA_JAR_BE.get(), EssentiaJarBlockEntityRenderer::new);
         }
 
         @SubscribeEvent

@@ -1,0 +1,7 @@
+{
+  "tag": "minecraft:logs",
+    "values": [
+      { "aspect": "synthetica:terra", "amount": 4 },
+      { "aspect": "synthetica:aer",   "amount": 2 }
+    ]
+  }

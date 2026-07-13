@@ -1,6 +1,8 @@
 package net.darklordnemesis.synthetica.datagen;
 
 import net.darklordnemesis.synthetica.Synthetica;
+import net.darklordnemesis.synthetica.item.ModItems;
+import net.darklordnemesis.synthetica.tag.ModTags;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.tags.ItemTagsProvider;
@@ -17,8 +19,8 @@ public class ModItemTagProvider extends ItemTagsProvider {
 
     @Override
     protected void addTags(HolderLookup.Provider provider) {
-        //tag(ModTags.Items.ITEM_TAG)
-        //.add(ModItems.ITEM.get());
+        tag(ModTags.HAS_SHEATH)
+        .add(ModItems.KATANA.get());
 
     }
 }

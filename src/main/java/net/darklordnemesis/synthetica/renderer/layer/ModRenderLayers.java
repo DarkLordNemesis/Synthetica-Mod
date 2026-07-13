@@ -16,4 +16,5 @@ public class ModRenderLayers {
             ResourceLocation.fromNamespaceAndPath(Synthetica.MOD_ID, "empty_sheath_layer"),
             "main"
     );
+
 }

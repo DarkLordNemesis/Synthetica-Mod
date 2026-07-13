@@ -6,14 +6,16 @@ import com.mojang.math.Axis;
 import net.darklordnemesis.synthetica.Synthetica;
 import net.darklordnemesis.synthetica.client.SheathStateManager;
 import net.darklordnemesis.synthetica.item.ModItems;
-import net.darklordnemesis.synthetica.datacomponent.ModDataComponents;
 import net.darklordnemesis.synthetica.network.KatanaSyncInfo;
+import net.darklordnemesis.synthetica.component.ModDataComponents;
 import net.darklordnemesis.synthetica.server.ModDataRegistries;
+import net.darklordnemesis.synthetica.tag.ModTags;
 import net.darklordnemesis.synthetica.renderer.model.EmptySheathModel;
 import net.darklordnemesis.synthetica.renderer.model.SheathModel;
 import net.darklordnemesis.synthetica.sheath.SheathTransform;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.EntityModel;
+import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.EntityModelSet;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -21,111 +23,112 @@ import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class SheathRenderLayer<T extends LivingEntity, M extends EntityModel<T>> extends RenderLayer<T, M> {
 
-    private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(Synthetica.MOD_ID, "textures/models/entity/sheath.png");
+    // Helper record to group visual assets together
+    private record SheathVisuals<T extends LivingEntity>(EntityModel<T> sheathed, EntityModel<T> drawn, ResourceLocation texture) {}
 
-    private final SheathModel<T> sheathModel;
-    private final EmptySheathModel<T> emptySheathModel;
+    // The Client-Side Registry Map
+    private final Map<Item, SheathVisuals<T>> visualsRegistry = new HashMap<>();
 
     public SheathRenderLayer(RenderLayerParent<T, M> renderer, EntityModelSet modelSet) {
         super(renderer);
-        this.sheathModel = new SheathModel<>(modelSet.bakeLayer(ModRenderLayers.SHEATH_LAYER));
-        this.emptySheathModel = new EmptySheathModel<>(modelSet.bakeLayer(ModRenderLayers.EMPTY_SHEATH_LAYER));
+
+        // 1. REGISTER KATANA VISUALS
+        visualsRegistry.put(ModItems.KATANA.get(), new SheathVisuals<>(
+                new SheathModel<>(modelSet.bakeLayer(ModRenderLayers.SHEATH_LAYER)),
+                new EmptySheathModel<>(modelSet.bakeLayer(ModRenderLayers.EMPTY_SHEATH_LAYER)),
+                ResourceLocation.fromNamespaceAndPath(Synthetica.MOD_ID, "textures/models/entity/sheath.png")
+        ));
+
+        // 2. Add future weapons here! Example:
+        // visualsRegistry.put(ModItems.GREATSWORD.get(), new SheathVisuals<>(
+        //         new GreatswordSheathModel<>(modelSet.bakeLayer(ModRenderLayers.GREATSWORD_LAYER)),
+        //         new EmptyGreatswordSheathModel<>(modelSet.bakeLayer(ModRenderLayers.EMPTY_GREATSWORD_LAYER)),
+        //         ResourceLocation.fromNamespaceAndPath(Synthetica.MOD_ID, "textures/models/entity/greatsword_sheath.png")
+        // ));
     }
 
     @Override
     public void render(PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, T livingEntity, float limbSwing, float limbSwingAmount, float partialTick, float ageInTicks, float netHeadYaw, float headPitch) {
+        if (!(livingEntity instanceof Player player)) return;
 
-        if (!(livingEntity instanceof Player player)) {
-            return;
-        }
-
-        // 1. Get all katanas that need rendering
         List<KatanaSyncInfo> katanasToRender = getKatanasToRender(player);
+        if (katanasToRender.isEmpty()) return;
 
-        if (katanasToRender.isEmpty()) {
-            return;
-        }
-
-        // 2. Fetch the synchronized Datapack Registry from the client world
         Registry<SheathTransform> registry = Minecraft.getInstance().level.registryAccess().registryOrThrow(ModDataRegistries.SHEATH_POSITIONS_KEY);
-        VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderType.entityCutoutNoCull(TEXTURE));
 
-        // 3. Render every katana found in the inventory
         for (KatanaSyncInfo info : katanasToRender) {
             ResourceLocation positionId = info.positionId();
             if (positionId == null) continue;
 
             SheathTransform transform = registry.get(positionId);
-            if (transform == null) continue; // Safety check in case the JSON was deleted
+            if (transform == null) continue;
 
-            // Pick which model to render:
-            //   holding  → empty sheath (sword is drawn)
-            //   not held → full sheath  (sword is sheathed)
-            EntityModel<T> modelToRender = info.isDrawn() ? emptySheathModel : sheathModel;
+            // Look up the specific sword item and its visual data
+            Item weaponItem = BuiltInRegistries.ITEM.get(info.itemId());
+            SheathVisuals<T> visualData = visualsRegistry.get(weaponItem);
+
+            // If we haven't registered a model for this sword type, skip it
+            if (visualData == null) continue;
+
+            // Use the item-specific models and texture
+            EntityModel<T> modelToRender = info.isDrawn() ? visualData.drawn() : visualData.sheathed();
+            VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderType.entityCutoutNoCull(visualData.texture()));
 
             poseStack.pushPose();
 
-            // apply body rotation
-            if (this.getParentModel() instanceof net.minecraft.client.model.HumanoidModel<?> humanoidModel) {
-                // This inherits the exact translation and rotation of the body (sneaking, swimming, flying)
+            if (this.getParentModel() instanceof HumanoidModel<?> humanoidModel) {
                 humanoidModel.body.translateAndRotate(poseStack);
             }
 
-            // Apply JSON transformations
             poseStack.translate(transform.translation().x(), transform.translation().y(), transform.translation().z());
-
             poseStack.mulPose(Axis.XP.rotationDegrees(transform.rotation().x()));
             poseStack.mulPose(Axis.YP.rotationDegrees(transform.rotation().y()));
             poseStack.mulPose(Axis.ZP.rotationDegrees(transform.rotation().z()));
-
             poseStack.scale(transform.scale().x(), transform.scale().y(), transform.scale().z());
 
             modelToRender.renderToBuffer(poseStack, vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY);
-
             poseStack.popPose();
         }
     }
 
-    /**
-     * Gathers all katanas on the player and determines if they are drawn or sheathed.
-     */
     private List<KatanaSyncInfo> getKatanasToRender(Player player) {
         List<KatanaSyncInfo> renderInfos = new ArrayList<>();
         ResourceLocation defaultPos = ResourceLocation.fromNamespaceAndPath(Synthetica.MOD_ID, "hip_left");
 
         if (player == Minecraft.getInstance().player) {
-
-            // Check main inventory
             for (ItemStack stack : player.getInventory().items) {
-                if (stack.is(ModItems.KATANA.get())) {
+                if (stack.is(ModTags.HAS_SHEATH)) {
                     boolean isDrawn = stack == player.getMainHandItem();
                     ResourceLocation pos = stack.getOrDefault(ModDataComponents.SHEATH_POSITION.get(), defaultPos);
-                    renderInfos.add(new KatanaSyncInfo(pos, isDrawn));
+                    ResourceLocation itemId = BuiltInRegistries.ITEM.getKey(stack.getItem());
+                    renderInfos.add(new KatanaSyncInfo(itemId, pos, isDrawn));
                 }
             }
-
-            // Check offhand specifically
             for (ItemStack stack : player.getInventory().offhand) {
-                if (stack.is(ModItems.KATANA.get())) {
+                if (stack.is(ModTags.HAS_SHEATH)) {
                     boolean isDrawn = stack == player.getOffhandItem();
                     ResourceLocation pos = stack.getOrDefault(ModDataComponents.SHEATH_POSITION.get(), defaultPos);
-                    renderInfos.add(new KatanaSyncInfo(pos, isDrawn));
+                    ResourceLocation itemId = BuiltInRegistries.ITEM.getKey(stack.getItem());
+                    renderInfos.add(new KatanaSyncInfo(itemId, pos, isDrawn));
                 }
             }
         } else {
             renderInfos.addAll(SheathStateManager.getKatanas(player.getUUID()));
         }
-
         return renderInfos;
     }
 }

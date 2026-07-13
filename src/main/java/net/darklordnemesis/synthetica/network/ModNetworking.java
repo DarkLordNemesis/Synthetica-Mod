@@ -2,7 +2,7 @@ package net.darklordnemesis.synthetica.network;
 
 import net.darklordnemesis.synthetica.Synthetica;
 import net.darklordnemesis.synthetica.client.SheathStateManager;
-import net.darklordnemesis.synthetica.datacomponent.ModDataComponents;
+import net.darklordnemesis.synthetica.component.ModDataComponents;
 import net.darklordnemesis.synthetica.item.ModItems;
 import net.darklordnemesis.synthetica.server.ModDataRegistries;
 import net.darklordnemesis.synthetica.sheath.SheathTransform;

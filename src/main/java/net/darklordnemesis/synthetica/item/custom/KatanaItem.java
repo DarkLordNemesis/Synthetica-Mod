@@ -1,7 +1,7 @@
 package net.darklordnemesis.synthetica.item.custom;
 
 import net.darklordnemesis.synthetica.Synthetica;
-import net.darklordnemesis.synthetica.datacomponent.ModDataComponents;
+import net.darklordnemesis.synthetica.component.ModDataComponents;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;

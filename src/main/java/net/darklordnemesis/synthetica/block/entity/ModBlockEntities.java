@@ -18,6 +18,12 @@ public class ModBlockEntities {
     public static final Supplier<BlockEntityType<PipeBlockEntity>> PIPE_BE = BLOCK_ENTITIES.register("pipe_be", () -> BlockEntityType.Builder.of(
             PipeBlockEntity::new, ModBlocks.PIPE.get()).build(null));
 
+    public static final Supplier<BlockEntityType<GravitationalAnomalyBlockEntity>> GRAVITATIONAL_ANOMALY_BE = BLOCK_ENTITIES.register("gravitational_anomaly_be", () -> BlockEntityType.Builder.of(
+            GravitationalAnomalyBlockEntity::new, ModBlocks.GRAVITATIONAL_ANOMALY.get()).build(null));
+
+    public static final Supplier<BlockEntityType<EssentiaJarBlockEntity>> ESSENTIA_JAR_BE = BLOCK_ENTITIES.register("essentia_jar_be", () -> BlockEntityType.Builder.of(
+            EssentiaJarBlockEntity::new, ModBlocks.ESSENTIA_JAR.get()).build(null));
+
     public static void register(IEventBus modEventBus) {
         BLOCK_ENTITIES.register(modEventBus);
     }

@@ -1,8 +1,7 @@
 package net.darklordnemesis.synthetica.server;
 
 import net.darklordnemesis.synthetica.Synthetica;
-import net.darklordnemesis.synthetica.datacomponent.ModDataComponents;
-import net.darklordnemesis.synthetica.item.ModItems;
+import net.darklordnemesis.synthetica.component.ModDataComponents;
 import net.darklordnemesis.synthetica.network.KatanaSyncInfo;
 import net.darklordnemesis.synthetica.network.SyncSheathPayload;
 import net.minecraft.resources.ResourceLocation;
@@ -56,23 +55,24 @@ public class ServerSheathTracker {
         List<KatanaSyncInfo> list = new ArrayList<>();
         ResourceLocation defaultPos = ResourceLocation.fromNamespaceAndPath(Synthetica.MOD_ID, "hip_left");
 
-        // Scan main inventory
         for (ItemStack stack : player.getInventory().items) {
-            if (stack.is(ModItems.KATANA.get())) {
+            // Use the Tag instead of a hardcoded item!
+            if (stack.is(net.darklordnemesis.synthetica.tag.ModTags.HAS_SHEATH)) {
                 boolean isDrawn = stack == player.getMainHandItem();
-                // Use getOrDefault instead of get!
                 ResourceLocation pos = stack.getOrDefault(ModDataComponents.SHEATH_POSITION.get(), defaultPos);
-                list.add(new KatanaSyncInfo(pos, isDrawn));
+                ResourceLocation itemId = net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(stack.getItem());
+
+                list.add(new KatanaSyncInfo(itemId, pos, isDrawn));
             }
         }
 
-        // Scan offhand
         for (ItemStack stack : player.getInventory().offhand) {
-            if (stack.is(ModItems.KATANA.get())) {
+            if (stack.is(net.darklordnemesis.synthetica.tag.ModTags.HAS_SHEATH)) {
                 boolean isDrawn = stack == player.getOffhandItem();
-                // Use getOrDefault instead of get!
                 ResourceLocation pos = stack.getOrDefault(ModDataComponents.SHEATH_POSITION.get(), defaultPos);
-                list.add(new KatanaSyncInfo(pos, isDrawn));
+                ResourceLocation itemId = net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(stack.getItem());
+
+                list.add(new KatanaSyncInfo(itemId, pos, isDrawn));
             }
         }
         return list;
